@@ -1,4 +1,4 @@
-from networkSettings import sendTelegramMessage
+# from networkSettings import sendTelegramMessage
 import time
 import machine
 
