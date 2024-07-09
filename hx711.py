@@ -1,122 +1,150 @@
-# MIT License
+from utime import sleep_us, time
+from machine import Pin
+from micropython import const
 
-# Copyright (c) 2019 
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+class HX711Exception(Exception):
+    pass
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+class InvalidMode(HX711Exception):
+    pass
 
-from machine import enable_irq, disable_irq, idle, Pin
-import time
 
-class HX711:
-    def __init__(self, clock, data, gain=128):
-        self.clock = clock
-        self.data = data
-        self.clock.value(False)
+class DeviceIsNotReady(HX711Exception):
+    pass
 
-        self.GAIN = 0
-        self.OFFSET = 0
-        self.SCALE = 1
 
-        self.time_constant = 0.25
-        self.filtered = 0
+class HX711(object):
+    """
+    Micropython driver for Avia Semiconductor's HX711
+    24-Bit Analog-to-Digital Converter
+    """
+    CHANNEL_A_128 = const(1)
+    CHANNEL_A_64 = const(3)
+    CHANNEL_B_32 = const(2)
 
-        self.set_gain(gain);
+    DATA_BITS = const(24)
+    MAX_VALUE = const(0x7fffff)
+    MIN_VALUE = const(0x800000)
+    READY_TIMEOUT_SEC = const(5)
+    SLEEP_DELAY_USEC = const(80)
 
-    def set_gain(self, gain):
-        if gain is 128:
-            self.GAIN = 1
-        elif gain is 64:
-            self.GAIN = 3
-        elif gain is 32:
-            self.GAIN = 2
+    def __init__(self, d_out: int, pd_sck: int, channel: int = CHANNEL_A_128):
+        self.d_out_pin = Pin(d_out, Pin.IN)
+        self.pd_sck_pin = Pin(pd_sck, Pin.OUT, value=0)
+        self.channel = channel
 
-        self.read()
-        self.filtered = self.read()
+    def __repr__(self):
+        return "HX711 on channel %s, gain=%s" % self.channel
 
-    def conversion_done_cb(self, data):
-        self.conversion_done = True
-        data.irq(handler=None)
+    def _convert_from_twos_complement(self, value: int) -> int:
+        """
+        Converts a given integer from the two's complement format.
+        """
+        if value & (1 << (self.DATA_BITS - 1)):
+            value -= 1 << self.DATA_BITS
+        return value
 
-    def read(self):
-        self.conversion_done = False
-        self.data.irq(trigger=Pin.IRQ_FALLING, handler=self.conversion_done_cb)
-        # wait for the device being ready
-        for _ in range(500):
-            if self.conversion_done == True:
-                break
-            time.sleep_ms(1)
+    def _set_channel(self):
+        """
+        Input and gain selection is controlled by the
+        number of the input PD_SCK pulses
+        3 pulses for Channel A with gain 64
+        2 pulses for Channel B with gain 32
+        1 pulse for Channel A with gain 128
+        """
+        for i in range(self._channel):
+            self.pd_sck_pin.value(1)
+            self.pd_sck_pin.value(0)
+
+    def _wait(self):
+        """
+        If the HX711 is not ready within READY_TIMEOUT_SEC
+        the DeviceIsNotReady exception will be thrown.
+        """
+        t0 = time()
+        while not self.is_ready():
+            if time() - t0 > self.READY_TIMEOUT_SEC:
+                raise DeviceIsNotReady()
+
+    @property
+    def channel(self) -> tuple:
+        """
+        Get current input channel in a form
+        of a tuple (Channel, Gain)
+        """
+        if self._channel == self.CHANNEL_A_128:
+            return 'A', 128
+        if self._channel == self.CHANNEL_A_64:
+            return 'A', 64
+        if self._channel == self.CHANNEL_B_32:
+            return 'B', 32
+
+    @channel.setter
+    def channel(self, value):
+        """
+        Set input channel
+        HX711.CHANNEL_A_128 - Channel A with gain 128
+        HX711.CHANNEL_A_64 - Channel A with gain 64
+        HX711.CHANNEL_B_32 - Channel B with gain 32
+        """
+        if value not in (self.CHANNEL_A_128, self.CHANNEL_A_64, self.CHANNEL_B_32):
+            raise InvalidMode('Gain should be one of HX711.CHANNEL_A_128, HX711.CHANNEL_A_64, HX711.CHANNEL_B_32')
         else:
-            self.data.irq(handler=None)
-            raise OSError("Sensor does not respond")
+            self._channel = value
 
-        # shift in data, and gain & channel info
-        result = 0
-        for j in range(24 + self.GAIN):
-            state = disable_irq()
-            self.clock(True)
-            self.clock(False)
-            enable_irq(state)
-            result = (result << 1) | self.data()
+        if not self.is_ready():
+            self._wait()
 
-        # shift back the extra bits
-        result >>= self.GAIN
+        for i in range(self.DATA_BITS):
+            self.pd_sck_pin.value(1)
+            self.pd_sck_pin.value(0)
 
-        # check sign
-        if result > 0x7fffff:
-            result -= 0x1000000
+        self._set_channel()
 
-        return result
+    def is_ready(self) -> bool:
+        """
+        When output data is not ready for retrieval,
+        digital output pin DOUT is high.
+        """
+        return self.d_out_pin.value() == 0
 
-    def read_average(self, times=3):
-        sum = 0
-        for i in range(times):
-            sum += self.read()
-        return sum / times
+    def power_off(self):
+        """
+        When PD_SCK pin changes from low to high
+        and stays at high for longer than 60 us ,
+        HX711 enters power down mode.
+        """
+        self.pd_sck_pin.value(0)
+        self.pd_sck_pin.value(1)
+        sleep_us(self.SLEEP_DELAY_USEC)
 
-    def read_lowpass(self):
-        self.filtered += self.time_constant * (self.read() - self.filtered)
-        return self.filtered
+    def power_on(self):
+        """
+        When PD_SCK returns to low, HX711 will reset
+        and enter normal operation mode.
+        """
+        self.pd_sck_pin.value(0)
+        self.channel = self._channel
 
-    def get_value(self):
-        return self.read_lowpass() - self.OFFSET
+    def read(self, raw=False):
+        """
+        Read current value for current channel with current gain.
+        if raw is True, the HX711 output will not be converted
+        from two's complement format.
+        """
+        if not self.is_ready():
+            self._wait()
 
-    def get_units(self):
-        return self.get_value() / self.SCALE
+        raw_data = 0
+        for i in range(self.DATA_BITS):
+            self.pd_sck_pin.value(1)
+            self.pd_sck_pin.value(0)
+            raw_data = raw_data << 1 | self.d_out_pin.value()
+        self._set_channel()
 
-    def tare(self, times=15):
-        self.set_offset(self.read_average(times))
-
-    def set_scale(self, scale):
-        self.SCALE = scale
-
-    def set_offset(self, offset):
-        self.OFFSET = offset
-
-    def set_time_constant(self, time_constant = None):
-        if time_constant is None:
-            return self.time_constant
-        elif 0 < time_constant < 1.0:
-            self.time_constant = time_constant
-
-    def power_down(self):
-        self.clock.value(False)
-        self.clock.value(True)
-
-    def power_up(self):
-        self.clock.value(False)
+        if raw:
+            return raw_data
+        else:
+            return self._convert_from_twos_complement(raw_data)

@@ -1,23 +1,32 @@
 from machine import Pin
+from scales import Scales
 from utime import sleep
-from hx711 import HX711
 
 # Represents a class controlling a load cell sensor with an amplifier.
 class WeightCell:
     # Initialize the class.
     def __init__(self):
-        data_pin = Pin(19, Pin.IN, pull=Pin.PULL_DOWN)  # Data pin for the load cell
-        clock_pin = Pin(18, Pin.OUT)  # Clock pin for the load cell
+        data_pin = Pin(27, Pin.IN, pull=Pin.PULL_DOWN)  # Data pin for the load cell
+        clock_pin = Pin(26, Pin.OUT)  # Clock pin for the load cell
         
-        # Initialize the HX711
-        self.hx711 = HX711(clock_pin, data_pin)
-        self.hx711.tare()  # Reset the scale to zero
+        # Initialize the Scales object (which extends HX711)
+        self.scales = Scales(data_pin, clock_pin)
+
+        # Perform tare operation (zeroing the scale)
+        self.scales.tare()
 
     # Get the current weight on the load cell.
     def getCurrentWeight(self):
-        while(True):
-            raw_wt = self.hx711.read()
-            sf = 340/350000
-            weight = raw_wt*sf # Get a scaling factor by measuring a known weight until it reads correct.
-            print(f"{weight:.1f} grams", end="      \r")
-            sleep(2)
+        try:
+            # Read weight value, adjust the calc accordingly
+            weight = (self.scales.stable_value()*(0.0005)*8)/100
+
+        except KeyboardInterrupt:
+            print("Interrupted")
+
+        except Exception as e:
+            print("Exception during measurement:", e)
+
+        return weight
+
+

@@ -9,7 +9,6 @@ class ServoClass:
         self.LEFT = 1000000  # Rotate counter-clockwise
         self.RIGHT = 4000000  # Rotate clockwise
 
-        self.led = Pin(25, Pin.OUT)
         self.pwm = PWM(Pin(15))
 
         self.pwm.freq(50)
