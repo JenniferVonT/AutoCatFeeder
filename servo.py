@@ -1,5 +1,5 @@
-from machine import Pin, PWM
-from utime import sleep
+from machine import Pin, PWM # type: ignore
+from utime import sleep # type: ignore
 
 # Represents a class controlling the servo for the food dispenser valve.
 class ServoClass:

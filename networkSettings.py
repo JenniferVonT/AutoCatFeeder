@@ -1,6 +1,6 @@
 # Run "mip.install("requests") first"
-import requests
-import network
+import requests # type: ignore
+import network # type: ignore
 import time
 import os
 from load_env import load_env, env_vars

@@ -1,5 +1,5 @@
-from machine import Pin, ADC
-from utime import sleep
+from machine import Pin, ADC # type: ignore
+from utime import sleep # type: ignore
 
 class LightSensor:
     def __init__(self):
