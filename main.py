@@ -9,6 +9,7 @@ from utime import sleep, time # type: ignore
 light = LightSensor()
 servo = ServoClass()
 '''
+
 weight = WeightCell()
 
 '''

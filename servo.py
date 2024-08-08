@@ -6,8 +6,8 @@ class ServoClass:
     # Initialize the class.
     def __init__(self):
         self.STOP = 1500000  # Stop the motor
-        self.LEFT = 1000000  # Rotate counter-clockwise
-        self.RIGHT = 4000000  # Rotate clockwise
+        self.LEFT = 1200000  # Rotate counter-clockwise
+        self.RIGHT = 2000000  # Rotate clockwise
 
         self.pwm = PWM(Pin(15))
 
@@ -17,9 +17,9 @@ class ServoClass:
     # Open the valve once.
     def turnValve(self):
         self.pwm.duty_ns(self.LEFT)  # Rotate counter-clockwise
-        sleep(0.115)  # Adjust the time to reach approximately 11 o'clock position
+        sleep(0.5)  # Adjust the time to reach approximately 11 o'clock position
         self.pwm.duty_ns(self.STOP)  # Stop the motor
-        sleep(2)  # Wait for 2 seconds
+        sleep(1)  # Wait for X seconds
         self.pwm.duty_ns(self.RIGHT)  # Rotate clockwise
-        sleep(0.115)  # Adjust the time to reach approximately 2 o'clock position
+        sleep(0.5)  # Adjust the time to reach approximately 2 o'clock position
         self.pwm.duty_ns(self.STOP)  # Stop the motor

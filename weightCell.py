@@ -5,8 +5,8 @@ from hx711 import *
 class WeightCell:
     # Initialize the class.
     def __init__(self):
-        data_pin = Pin(0)  # Data pin for the load cell
-        clock_pin = Pin(26)  # Clock pin for the load cell
+        data_pin = Pin(26)  # Data pin for the load cell
+        clock_pin = Pin(27)  # Clock pin for the load cell
         
         # Initialize the hx711 object.
         self.hx = hx711(clock_pin, data_pin)
@@ -27,8 +27,12 @@ class WeightCell:
     # Get the current weight on the load cell.
     def getCurrentWeight(self):
         try:
-            # Read weight value, adjust the calc accordingly
-            val = (self.hx.get_value() * 0.001 + 53) * -1
+            raw_value = self.hx.get_value()
+            scale_factor = -1226
+            tare_offset = 29500
+
+            # Calculate the weight based on calibration
+            val = (raw_value - tare_offset) / scale_factor
 
         except KeyboardInterrupt:
             print("Interrupted")
