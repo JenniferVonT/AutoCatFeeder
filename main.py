@@ -24,11 +24,6 @@ while True:
     weightMeasurement = weight.getCurrentWeight()
     sendAdafruitData(weightMeasurement - 73)
 
-    ''' # For debugging.
-    print("Light measurement: ", lightMeasurement)
-    print("Weight measurement:", weightMeasurement)
-    '''
-
     # --------> Check if light is low and it's time to send a message <--------
     if lightMeasurement < LOW_LIGHT_THRESHOLD:
         currentTime = time()
@@ -41,18 +36,26 @@ while True:
     # --------> Check if weight is low and trigger servo action <--------
     if weightMeasurement <= REFILL_WEIGHT_THRESHOLD:
         tries = 0
+        refill_success = False
+
         while weightMeasurement <= 150:
-            servo.turnValve()
-            weightMeasurement = weight.getCurrentWeight()
-            print("Weight measurement:", weightMeasurement)
-            print("Tries:", tries)
+            servo.turnValve() # Try turning the valve to fill the bowl.
+            sleep(10)
+            weightMeasurement = weight.getCurrentWeight() # Check how much was dispensed.
             tries += 1
+
+            if weightMeasurement > 150:
+                refill_success = True
+                break
 
             # Try 15 times to fill the bowl before alerting that something went wrong.
             if tries == 15:
                 sendTelegramMessage("Something went wrong, can't refill bowl!")
                 break
 
-            sleep(10) # Try every 10 seconds to fill until the desired weight is reached.
+            sleep(20) # Try every 20 seconds to fill until the desired weight is reached.
+
+        if not refill_success:
+            print("Refill failed after 15 tries.")
 
     sleep(LOOP_TIME) # Loop the entire check every X seconds. <-----------------
