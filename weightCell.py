@@ -1,5 +1,6 @@
 from machine import Pin # type: ignore
 from hx711 import *
+from math import trunc
 
 # Represents a class controlling a load cell sensor with an amplifier.
 class WeightCell:
@@ -24,12 +25,14 @@ class WeightCell:
         # Wait for readings to settle
         hx711.wait_settle(hx711.rate.rate_10)
 
-    # Get the current weight on the load cell.
+    # Get the current weight on the load cell in grams (truncated, no decimals).
     def getCurrentWeight(self):
         try:
             raw_value = self.hx.get_value()
-            scale_factor = -1226
-            tare_offset = 29500
+            tare_offset = -66500
+            known_weight_73g = -155300
+            
+            scale_factor = (known_weight_73g - tare_offset) / 73
 
             # Calculate the weight based on calibration
             val = (raw_value - tare_offset) / scale_factor
@@ -40,6 +43,5 @@ class WeightCell:
         except Exception as e:
             print("Exception during measurement:", e)
 
-        return val
-
+        return trunc(val)
 

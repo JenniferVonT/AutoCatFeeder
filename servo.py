@@ -19,7 +19,15 @@ class ServoClass:
         self.pwm.duty_ns(self.LEFT)  # Rotate counter-clockwise
         sleep(0.5)  # Adjust the time to reach approximately 11 o'clock position
         self.pwm.duty_ns(self.STOP)  # Stop the motor
-        sleep(1)  # Wait for X seconds
+        sleep(2)  # Wait for X seconds
         self.pwm.duty_ns(self.RIGHT)  # Rotate clockwise
         sleep(0.5)  # Adjust the time to reach approximately 2 o'clock position
         self.pwm.duty_ns(self.STOP)  # Stop the motor
+        self.pwm.duty_ns(self.LEFT)  # Rotate counter-clockwise
+        sleep(0.5)  # Adjust the time to reach approximately 11 o'clock position
+        self.pwm.duty_ns(self.STOP)  # Stop the motor
+        sleep(2)  # Wait for X seconds
+        self.pwm.duty_ns(self.RIGHT)  # Rotate clockwise
+        sleep(0.5)  # Adjust the time to reach approximately 2 o'clock position
+        self.pwm.duty_ns(self.STOP)  # Stop the motor
+

@@ -14,6 +14,7 @@ class LightSensor:
 
     def measureLight(self):
         self.activateLED()
+        sleep(2)
         lightValue = self.sensor.read_u16()  # Read the light sensor value
         sleep(2)
         self.deactivateLED()
