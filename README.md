@@ -79,7 +79,6 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 
 ### Build
 <img src="./img/box-image.png" alt="Build" width="600" height="400"><br><br>
-<img src="./img/20240627_163324.jpg" alt="Build" width="600" height="400"><br>
 <img src="./img/20240808_140616.jpg" alt="Build" width="600" height="400"><br>
 
 ## Platform
