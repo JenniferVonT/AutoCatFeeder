@@ -30,8 +30,8 @@ There is one (1) of each component except the cables.
 | 330ohm 0.25W resistor | Lowers the resistance to the LED | **1** | [40810233](https://www.electrokit.com/motstand-kolfilm-0.25w-330ohm-330r) |
 | Cables | Connect all the components | **55** | [41012684](https://www.electrokit.com/labbsladd-40-pin-30cm-hane/hane) |
 | **Container build:** | --------------------------------------------------------------- | ------- | ------- |
-| Food bowl | Will only be laying on the scale part, not attached to anything | 79,90 | [Arken zoo](https://www.arkenzoo.se/littlebigger-hamrad-metallic-skal-koppar) |
-| Plexiglass | Used to built the box and scale | 199 | Local Jula store [LINK](https://www.jula.se/catalog/bygg-och-farg/beslag/inredningsbeslag/plastskivor/akrylplast-opal-024451/) |
+| Food bowl | Will only be laying on the scale part, not attached to anything | **79,90** | [Arken zoo](https://www.arkenzoo.se/littlebigger-hamrad-metallic-skal-koppar) |
+| Plexiglass | Used to built the box and scale | **199** | Local Jula store [LINK](https://www.jula.se/catalog/bygg-och-farg/beslag/inredningsbeslag/plastskivor/akrylplast-opal-024451/) |
 | Plastic food container with lid | Used to contain the kibble and servo/LED | ?? | Sourced from home |
 | Plastic container lid | Cut up to create the angled inner walls of the food container, protecting the servo and LED and make the food drop easier | ?? | Sourced from home |
 | Plastic measuring bottle | Used to create the chute for the food to fall through | ?? | Sourced from home |
@@ -71,8 +71,10 @@ There is also different tools used:
   - Hold down the **BOOTSEL** button while connecting the Pico to the computer using the usb cable.
   - Download and insert the most recent firmware [HERE](https://micropython.org/download/RPI_PICO_W/) into the explorer file that automatically opens up.
 
-
 ## Putting everything together
+### Circuit Diagram
+![circuit diagram](./img/Setup-Schematic.png)
+
 ## Platform
 ## The code
 ## Transmitting the Data / Connectivity
