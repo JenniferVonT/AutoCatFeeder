@@ -115,8 +115,7 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 - Connect all the cables to the breadboard according to the circuit diagram and remove the sticker protection and stick it horizontally on the back inner wall.<br>
 <img src="./img/breadboard-mount.jpg" alt="Build" width="600"><br>
 
-- Now the box and hardware should be completed.<br><br>
-<img src="./img/20240811_235358.jpg" alt="Build" width="600"><br>
+- Now the box and hardware should be completed!.<br><br>
 
 ## Platform
 All code is run on the Raspberry Pi Pico W sending POST requests through the HTTP protocol, but only to visualize and send notifications, all control and checks for the acutators are all made locally on the device.
@@ -287,7 +286,7 @@ When you are done with these calibrations you will have to reset the rest of the
 ## Transmitting the Data / Connectivity
 I first wanted to try the LoRaWan setup for sending data wirelessly (I even bought the pack for it) but because I felt time was running out and I had to put a lot of time into debugging the weightcell and building the box, and since my device will always be located inside my home, close to a wifi point, it was easier and quicker to use the built in WiFi module in the Raspberry Pi Pico W.
 
-All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py)<br><br>
+All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py) and data is transmitted every 10 minutes to the AdaFruit IO server<br><br>
 The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library, this is the connection configurations in the code:
 ```
 def connect_wifi(ssid, password):
@@ -338,4 +337,14 @@ def sendAdafruitData(data):
 ```
 
 ## Presenting the Data
+The data will be collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering the feed in the adaFruit account it will show a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
+<img src="./img/" alt="Data visualization" width="600"><br>
+
+It will show warnings to me when the food is running low in the container or the servo can't fill the bowl for some reason, it will try 15 times before it will message me, all of these messages/warnings will be sent through the Telegram app:<br>
+<img src="./img/Telegram-example.jpg" alt="Data visualization" width="300"><br>
+
 ## Finalizing the design
+It was a fun project to take on, it went pretty smoothly. The only things that took much longer than expected was building the actual box, I used a dremel to cut all the pieces and had to use mouth/eye protection since it was very dusty and it took a long time, configuring and installing the weightcell also took a lot of back and forth and of course figuring out the set up design took a long time. <br><br>
+
+If I could have done something different it would have been to use an external power supply that I could hook up directly to the HX711 instead of trying to power it through the board, because I think it would work better if it could receive a stable 5V charge, as it is now it is giving pretty unstable values and the calibrating took me forever, I can get it to give an accuracy around +/- 5-10g measurements. The same could be said about the servo, it would probably work better with a higher voltage and I should have used a stronger servo, it can get stuck since it doesn't have the power to push through sometimes, and the food can get stuck in the container aswell sometimes (hence why I configured a warning message being sent through telegram) and with a stronger servo I could have had attached some form of stick that pokes inside the container when it opens and closes to "mix it" a little bit, alternatively had a second servo with some form of stick rotating inside the food to help it not get "stuck".
+<img src="./img/20240811_235358.jpg" alt="Build" width="600"><br>
