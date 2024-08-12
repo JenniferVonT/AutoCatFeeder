@@ -109,12 +109,31 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 <img src="./img/20240809_173457.jpg" alt="Build" width="600"><br>
 
 - Connect the scale to the box construction by glueing it against the back wall and opening walls, use a cable channel on the back wall to protect the cables running from the scale to the top box.
-- Cut out a hole in the outer plexiglas wall for the USB cable to run through.<br>
+- Cut out a hole in the outer plexiglas wall for the USB cable to run through.<br><br>
   **These two next steps can be made in either order, it can be easier to insert the breadboard before the food container**
 - Insert the innerbox into the plexiglass box and fit the food chute to it's correct place, glue it in place (Mine is connected to the opening walls and the vertical servo stop.)
-- Connect all the cables to the breadboard according to the circuit diagram and remove the sticker protection and stick it horizontally on the back inner wall at the.
+- Connect all the cables to the breadboard according to the circuit diagram and remove the sticker protection and stick it horizontally on the back inner wall.<br>
+<img src="./img/breadboard-mount.jpg" alt="Build" width="600"><br>
+
+- Now the box and hardware should be completed.<br><br>
+<img src="./img/20240811_235358.jpg" alt="Build" width="600"><br>
 
 ## Platform
+All code is run on the Raspberry Pi Pico W sending POST requests through the HTTP protocol, but only to visualize and send notifications, all control and checks for the acutators are all made locally on the device.
+
+- AdaFruit IO: for data handling/visualization where the device will send the weight data using the request lib and the HTTP POST protocol via the built in WiFi module. Remember that all data saved on AdaFruit will expire within 30 days, there is a option for a paid version instead that (among other things) save the data for 60 days instead.
+- Telegram API: used to send notification and messages to my cellphone/telegram app when the food runs low or the dispenser have trouble dispensing food.
+  
+### Set up a bot on Telegram:
+- Install the telegram app on your computer [For PC/Linux](https://desktop.telegram.org/) [For macOS](https://macos.telegram.org/)
+- Start a conversation with the [@BotFather](https://telegram.me/BotFather) by either clicking this link or searching in the telegram application for "@BotFather" (this is the telegram bot that creates other bots)
+- Write "/start" to the BotFather, then select the "/newbot" option and follow the prompts that are given.
+- At the end you will get a token to access the HTTP API, **SAVE THIS IN A SECURE PLACE**, this token will be used in the code to send messages (use an env file for "secret" variables that is included in a .gitignore file if the project is pushed to github or any other git platform)
+- Create a new group chat in telegram, add the bot as a user in that chat and make the bot an admin user, send a random message in the chat.
+- Take your bot token and insert this url into your browser where you insert your bot token from before (remove the {}): https://api.telegram.org/bot{YourBOTToken}/getUpdates
+- In your browser you will see the API response as JSON, find this part and save your chat-id in a secure place: "chat": {**"id": -1234567**, "title": "titlename", "type": "chattype"}
+- With the BOT Token and chat id you will now be able to send messages through your Raspberry Pi.
+
 ## The code
 ## Transmitting the Data / Connectivity
 ## Presenting the Data
