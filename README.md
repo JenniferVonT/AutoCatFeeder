@@ -73,7 +73,14 @@ There is also different tools used:
 
 ## Putting everything together
 ### Circuit Diagram
-![circuit diagram](./img/Setup-Schematic.png)
+This shows how all the hardware electronics are connected, the HX711 is soldered with all the cables and mounted on the scale part. The rest is connected with male/male cables and can be removed from the breadboard easily, some cables are also joined together to create a longer cable to reach from the mounted component to the breadboard, in that case I have used male/female cables and used electrical tape at the joint to make sure it doesn't slip out. <br><br>
+<img src="./img/Setup-Schematic.png" alt="Circuit diagram" width="600" height="400"><br>
+The HX711 apparently has a known "error" with the grounding making the signals unstable and connecting the GND on both sides of the card can fix this.
+
+### Build
+<img src="./img/box-image.png" alt="Build" width="600" height="400"><br><br>
+<img src="./img/20240627_163324.jpg" alt="Build" width="600" height="400"><br>
+<img src="./img/20240808_140616.jpg" alt="Build" width="600" height="400"><br>
 
 ## Platform
 ## The code
