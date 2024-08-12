@@ -284,7 +284,58 @@ Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do
 
 When you are done with these calibrations you will have to reset the rest of the code, make sure ```return trunc(val)``` is at the end of the getCurrentWeight() method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while True loop and save/sync project with device.
 
-
 ## Transmitting the Data / Connectivity
+I first wanted to try the LoRaWan setup for sending data wirelessly (I even bought the pack for it) but because I felt time was running out and I had to put a lot of time into debugging the weightcell and building the box, and since my device will always be located inside my home, close to a wifi point, it was easier and quicker to use the built in WiFi module in the Raspberry Pi Pico W.
+
+All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py)<br><br>
+The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library, this is the connection configurations in the code:
+```
+def connect_wifi(ssid, password):
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(ssid, password)
+    
+    while not wlan.isconnected():
+        time.sleep(1)
+    print('Connected to WiFi')
+    print(wlan.ifconfig())
+```
+The method is called in the ```boot.py``` file when the device is being connected.
+
+It also sends POST requests using the HTTP protocol for transmitting data to both AdaFruit IO and the Telegram API:
+```
+# Send a message through the telegram app.
+def sendTelegramMessage(message):
+    url = 'https://api.telegram.org/bot{}/sendMessage'.format(env_vars.get('BOT_TOKEN'))
+    payload = {"chat_id": env_vars.get('CHAT_ID'), "text": message}
+    
+    response = requests.post(url, json=payload)
+    print(response.json())
+
+# Send data to Adafruit IO
+def sendAdafruitData(data):
+    url = f"https://io.adafruit.com/api/v2/{ADAFRUIT_API_FEED}"
+    headers = {
+        "X-AIO-Key": ADAFRUIT_IO_KEY,
+        "Content-Type": "application/json"
+    }
+    body = {
+        "value": str(data)
+    }
+
+    try:
+        response = requests.post(url, json=body, headers=headers)
+        print(response.text)
+        
+        if response.status_code == 200:
+            print("Successfully sent data:", body)
+        else:
+            print ("Failed to send data to Adafruit", body)
+
+    except Exception as e:
+        print("An error occurred while sending data:", e)
+
+```
+
 ## Presenting the Data
 ## Finalizing the design
