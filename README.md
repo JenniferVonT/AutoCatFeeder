@@ -78,8 +78,41 @@ This shows how all the hardware electronics are connected, the HX711 is soldered
 The HX711 apparently has a known "error" with the grounding making the signals unstable and connecting the GND on both sides of the card can fix this.
 
 ### Build
+- Cut out all the parts for the box (missing from the images are the piece for opening/servo and when the bottom/top parts of the scale where cut)<br>
 <img src="./img/box-image.png" alt="Build" width="600" height="400"><br><br>
-<img src="./img/20240808_140616.jpg" alt="Build" width="600" height="400"><br>
+<img src="./img/20240627_163324.jpg" alt="Build" width="600"><br>
+<img src="./img/20240808_140616.jpg" alt="Build" height="600"><br>
+
+- Assemble the outer box.<br>
+<img src="./img/20240627_190115.jpg" alt="Build" width="600"><br>
+
+- Alter the inner food container:
+  - Cut a hole in the middle for the food to dispense.
+  - Cut out two holes for the servo, one for the turning valve at the bottom and one at the side for the cable; Mount the servo.
+  - Cut out a whole on the opposite side for the LED; Mount the LED.
+<img src="./img/20240626_205609.jpg" alt="Build" width="600"><br>
+
+- Build diagonal inner walls of the food container to protect the components and make the food fall easier into the hole.
+- Mount the stop piece for the dispensing whole connected to the servo, also mount the vertical stop to prevent that piece from tipping down.<br>
+<img src="./img/20240808_154916.jpg" alt="Build" width="600"><br>
+<img src="./img/20240627_190200.jpg" alt="Build" width="600"><br>
+
+- Mount the weightcell to the bottom board of the scale using bolts as spacers.
+- Mount the scale top board to the weigthcell the same with bolts as spacers.<br><br>
+**!! When mounting the weightcell be careful as to not put any pressure on the white sensor areas !!**<br>
+<img src="./img/20240629_200350.jpg" alt="Build" width="600"><br>
+
+- Connect the HX711 amplifier to the weightcell on one side, also connect cables that will run to the breadboard on the other side. (Look at the circuit diagram for the correct placement)<br>
+<img src="./img/20240708_175317.jpg" alt="Build" width="600"><br>
+
+- Finish building the scale walls.<br>
+<img src="./img/20240809_173457.jpg" alt="Build" width="600"><br>
+
+- Connect the scale to the box construction by glueing it against the back wall and opening walls, use a cable channel on the back wall to protect the cables running from the scale to the top box.
+- Cut out a hole in the outer plexiglas wall for the USB cable to run through.<br>
+  **These two next steps can be made in either order, it can be easier to insert the breadboard before the food container**
+- Insert the innerbox into the plexiglass box and fit the food chute to it's correct place, glue it in place (Mine is connected to the opening walls and the vertical servo stop.)
+- Connect all the cables to the breadboard according to the circuit diagram and remove the sticker protection and stick it horizontally on the back inner wall at the.
 
 ## Platform
 ## The code
