@@ -241,6 +241,50 @@ while True:
 - [servo](./servo.py)
 - [weightCell](./weightCell.py)
 
+To upload the code onto the device you can use **PyMakr** to connect to the device and click **"sync project to device"** (Starting development mode will work aswell and updates the device continously while you change and save the code)
+
+### Calibrate the weightcell:
+In your **PyMakr** tab you can open a terminal for your project in the connected device tab of the project.
+
+You have to calibrate your weightcell, comment the entire **while** loop in the main.py file by inserting ``` before and after the loop. Insert this loop at the bottom outside of the **while** loop:
+
+```
+while True:
+    print(weight.getCurrentWeight())
+    sleep(1)
+```
+
+In the ```weightCell.py``` [file](./weightCell.py), this is the method you need to change, replace the ```trunc(val)``` part with ```raw_value``` for the calibration process:
+```
+    def getCurrentWeight(self):
+        try:
+            raw_value = self.hx.get_value()
+            tare_offset = -66500
+            known_weight_73g = -155300
+            
+            scale_factor = (known_weight_73g - tare_offset) / 73
+
+            # Calculate the weight based on calibration
+            val = (raw_value - tare_offset) / scale_factor
+
+        except KeyboardInterrupt:
+            print("Interrupted")
+
+        except Exception as e:
+            print("Exception during measurement:", e)
+
+        return trunc(val)
+```
+
+Make note of the value you get with no pressure on the loadcell, wait a little bit and try to get an average of a couple of values when it feels like it is somewhat "stable".
+Replace your average in the tare_offset: <br>
+```tare_offset = -66500```<br><br>
+
+Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do the same thing as before but with the known weight on the pressure plate and replace your number in the ```known_weight_73g = -155300```, also replace the last number in this ```scale_factor = (known_weight_73g - tare_offset) / 73``` with your known weight.<br>
+
+When you are done with these calibrations you will have to reset the rest of the code, make sure ```return trunc(val)``` is at the end of the getCurrentWeight() method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while True loop and save/sync project with device.
+
+
 ## Transmitting the Data / Connectivity
 ## Presenting the Data
 ## Finalizing the design
