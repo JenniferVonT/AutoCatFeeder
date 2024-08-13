@@ -65,7 +65,7 @@ There is also different tools used:
   - Write the name of the project folder.
   - Confirm the project folder.
   - Add device port by selecting **"Communications port (COM1) / Unkown"** <br><br>
-    This should have created a folder in your **Explorer** tab where three files are automatically created, boot.py, main.py and pymakr.conf (In the pymakr.conf file you can decide the name of the project, that the name that will be shown in the PyMakr tab)
+    This should have created a folder in your **Explorer** tab where three files are automatically created, boot.py, main.py and pymakr.conf (In the pymakr.conf file you can decide the name of the project, that's the name that will be shown in the PyMakr tab)
 
 ### Configure the Raspberry Pi Pico WH
   - Hold down the **BOOTSEL** button while connecting the Pico to the computer using the usb cable.
