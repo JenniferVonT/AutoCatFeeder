@@ -89,7 +89,7 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 - Alter the inner food container:
   - Cut a hole in the middle for the food to dispense.
   - Cut out two holes for the servo, one for the turning valve at the bottom and one at the side for the cable; Mount the servo.
-  - Cut out a whole on the opposite side for the LED; Mount the LED.
+  - Cut out a hole on the opposite side for the LED; Mount the LED.
 <img src="./img/20240626_205609.jpg" alt="Build" width="600"><br>
 
 - Build diagonal inner walls of the food container to protect the components and make the food fall easier into the hole.
