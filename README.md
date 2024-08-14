@@ -65,7 +65,7 @@ There is also different tools used:
   - Write the name of the project folder.
   - Confirm the project folder.
   - Add device port by selecting **"Communications port (COM1) / Unkown"** <br><br>
-    This should have created a folder in your **Explorer** tab where three files are automatically created, boot.py, main.py and pymakr.conf (In the pymakr.conf file you can decide the name of the project, that the name that will be shown in the PyMakr tab)
+    This should have created a folder in your **Explorer** tab where three files are automatically created, boot.py, main.py and pymakr.conf (In the pymakr.conf file you can decide the name of the project, that's the name that will be shown in the PyMakr tab)
 
 ### Configure the Raspberry Pi Pico WH
   - Hold down the **BOOTSEL** button while connecting the Pico to the computer using the usb cable.
@@ -89,7 +89,7 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 - Alter the inner food container:
   - Cut a hole in the middle for the food to dispense.
   - Cut out two holes for the servo, one for the turning valve at the bottom and one at the side for the cable; Mount the servo.
-  - Cut out a whole on the opposite side for the LED; Mount the LED.
+  - Cut out a hole on the opposite side for the LED; Mount the LED.
 <img src="./img/20240626_205609.jpg" alt="Build" width="600"><br>
 
 - Build diagonal inner walls of the food container to protect the components and make the food fall easier into the hole.
@@ -347,4 +347,9 @@ It will show warnings to me when the food is running low in the container or the
 It was a fun project to take on, it went pretty smoothly. The only things that took much longer than expected was building the actual box, I used a dremel to cut all the pieces and had to use mouth/eye protection since it was very dusty and it took a long time, configuring and installing the weightcell also took a lot of back and forth and of course figuring out the set up design took a long time. <br><br>
 
 If I could have done something different it would have been to use an external power supply that I could hook up directly to the HX711 instead of trying to power it through the board, because I think it would work better if it could receive a stable 5V charge, as it is now it is giving pretty unstable values and the calibrating took me forever, I can get it to give an accuracy around +/- 5-10g measurements. The same could be said about the servo, it would probably work better with a higher voltage and I should have used a stronger servo, it can get stuck since it doesn't have the power to push through sometimes, and the food can get stuck in the container aswell sometimes (hence why I configured a warning message being sent through telegram) and with a stronger servo I could have had attached some form of stick that pokes inside the container when it opens and closes to "mix it" a little bit, alternatively had a second servo with some form of stick rotating inside the food to help it not get "stuck".
+
+In the future it would also be better to remove the breadboard and solder all the wiring to a proper board to make them more stable and create a proper container within the box for it. I would also want to create a proper lid to the box, I ran out of plexiglass and couldn't justify putting 2-300SEK more into the project for a small piece of plexiglass (since they are sold in pre-cut sizes)
 <img src="./img/20240811_235358.jpg" alt="Build" width="600"><br>
+<img src="./img/20240811_235415.jpg" alt="Build" width="600"><br><br>
+
+I was also lucky to have a lot of support from my partner that could help me when I had questions about hardware, he taught me how to solder for instance, since before this project I had never done that before.
