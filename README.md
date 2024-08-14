@@ -124,14 +124,14 @@ All code is run on the Raspberry Pi Pico W sending POST requests through the HTT
 - **Telegram API:** used to send notification and messages to my cellphone/telegram app when the food runs low or the dispenser have trouble dispensing food.
   
 ### Set up a bot on Telegram:
-- Install the telegram app on your computer [For PC/Linux](https://desktop.telegram.org/) [For macOS](https://macos.telegram.org/)
-- Start a conversation with the [@BotFather](https://telegram.me/BotFather) by either clicking this link or searching in the telegram application for "@BotFather" (this is the telegram bot that creates other bots)
-- Write "/start" to the BotFather, then select the "/newbot" option and follow the prompts that are given.
-- At the end you will get a token to access the HTTP API, **SAVE THIS IN A SECURE PLACE**, this token will be used in the code to send messages (use an env file for "secret" variables that is included in a .gitignore file if the project is pushed to github or any other git platform)
-- Create a new group chat in telegram, add the bot as a user in that chat and make the bot an admin user, send a random message in the chat.
-- Take your bot token and insert this url into your browser where you insert your bot token from before (remove the {}): https://api.telegram.org/bot{YourBOTToken}/getUpdates
-- In your browser you will see the API response as JSON, find this part and save your chat-id in a secure place: "chat": {**"id": -1234567**, "title": "titlename", "type": "chattype"}
-- With the BOT Token and chat id you will now be able to send messages through your Raspberry Pi.
+- Install the telegram app on your computer and sync it to your mobile app as shown when installing [For PC/Linux](https://desktop.telegram.org/) [For macOS](https://macos.telegram.org/)
+- Start a conversation with the [@BotFather](https://telegram.me/BotFather) on desktop by either clicking this link or searching in the telegram application for "@BotFather" (this is the telegram bot that creates other bots)
+- Write "/start" to the BotFather if the prompts box doesn't automatically appear, then select/send the "/newbot" option/prompt and follow the prompts that are given for naming.
+- At the end you will get a bot token to access the HTTP API, **SAVE THIS IN A SECURE PLACE**, this token will be used in the code to send messages (use an env file for "secret" variables that is included in a .gitignore file if the project is pushed to github or any other git source control platform), the token will look something like this ```7777777777:AAAAA7aaAa_aAaAAA77AA-7AaAaaAaaaAaa``` but with unique randomized letters and numbers.
+- Create a new group chat in the telegram app (either on mobile or desktop), add the bot as a user in the group-chat and make the bot an admin user; send a random test message in the chat.
+- Take your bot token and insert this url into your browser where you insert your bot token - ```https://api.telegram.org/bot{YourBOTToken}/getUpdates``` (example: ```https://api.telegram.org/bot7777777777:AAAAA7aaAa_aAaAAA77AA-7AaAaaAaaaAaa/getUpdates```)
+- In your browser you will see the API response as JSON (JavaScript Object Notation, a standard text format), find this part and save the chat-id in a secure place: ```"chat": {"id": -1234567, "title": "titlename", "type": "chattype"}```
+- With the BOT Token and chat id you will now be able to send messages through your Raspberry Pi. To see a code example of how to send message see [networkSettings](./networkSettings.py)
 
 ## The code
 All code is located in this repo and can be reached at the top.<br><br>
@@ -279,15 +279,15 @@ Make note of the value you get with no pressure on the loadcell, wait a little b
 Replace your average in the tare_offset: <br>
 ```tare_offset = -66500```<br><br>
 
-Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do the same thing as before but with the known weight on the pressure plate and replace your number in the ```known_weight_73g = -155300```, also replace the last number in this ```scale_factor = (known_weight_73g - tare_offset) / 73``` with your known weight.<br>
+Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do the same thing as before but with the known weight on the pressure plate and replace your average of the known weight in the ```known_weight_73g = -155300```, also replace the last number in this ```scale_factor = (known_weight_73g - tare_offset) / 73``` with your known weight. (so if you have 100g replace the 73 with 100)<br>
 
-When you are done with these calibrations you will have to reset the rest of the code, make sure ```return trunc(val)``` is at the end of the getCurrentWeight() method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while True loop and save/sync project with device.
+When you are done with these calibrations you will have to reset the rest of the code, make sure ```return trunc(val)``` is at the end of the ```getCurrentWeight()``` method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while loop and save/sync project with device.
 
 ## Transmitting the Data / Connectivity
 I first wanted to try the LoRaWan setup for sending data wirelessly (I even bought the pack for it) but because I felt time was running out and I had to put a lot of time into debugging the weightcell and building the box, and since my device will always be located inside my home, close to a wifi point, it was easier and quicker to use the built in WiFi module in the Raspberry Pi Pico W.
 
 All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py) and data is transmitted every 10 minutes to the AdaFruit IO server<br><br>
-The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library, this is the connection configurations in the code:
+The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library (needs to be imported), this is the connection configurations in the code:
 ```
 def connect_wifi(ssid, password):
     wlan = network.WLAN(network.STA_IF)
@@ -299,7 +299,7 @@ def connect_wifi(ssid, password):
     print('Connected to WiFi')
     print(wlan.ifconfig())
 ```
-The method is called in the ```boot.py``` file when the device is being connected.
+This method is called in the ```boot.py``` file when the device is being connected.
 
 It also sends POST requests using the HTTP protocol for transmitting data to both AdaFruit IO and the Telegram API:
 ```
@@ -337,8 +337,19 @@ def sendAdafruitData(data):
 ```
 
 ## Presenting the Data
-The data will be collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering the feed in the adaFruit account it will show a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
-<img src="./img/data_visualization.PNG" alt="Data visualization" width="600"><br>
+The data will be collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering your feed in the adaFruit account it will show all the data points and a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
+I have decide to showcase this using the dashboard in AdaFruit, here you can combine feeds so you can show more than one set of data at ones (For instance if you want to show both weight and maybe nr of refills).
+<img src="./img/data_visualization.PNG" alt="Data visualization" width="1000"><br>
+### To create a dashboard in AdaFruit IO:
+- Click the Dashboard tab.
+- Create a ```New dashboard```, choose name of dashboard and description.
+- Click the newly created dashboard.
+- Click the cogwheel in the upper right corner to add a feed.
+- Click ```Create New Block```
+- Choose the desired way to show your data.
+- Choose the feed that should be connected to the block.
+- Fill in your desired options for the block (What should be max/min value etc)
+- Now you can edit the layout and blocks by clicking the cogwheel and change size, move them around etc.
 
 It will show warnings to me when the food is running low in the container or the servo can't fill the bowl for some reason, it will try 15 times before it will message me, all of these messages/warnings will be sent through the Telegram app:<br>
 <img src="./img/Telegram-example.jpg" alt="Data visualization" width="300"><br>
