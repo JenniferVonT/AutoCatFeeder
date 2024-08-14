@@ -338,7 +338,7 @@ def sendAdafruitData(data):
 
 ## Presenting the Data
 The data will be collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering the feed in the adaFruit account it will show a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
-<img src="./img/" alt="Data visualization" width="600"><br>
+<img src="./img/data_visualization.PNG" alt="Data visualization" width="600"><br>
 
 It will show warnings to me when the food is running low in the container or the servo can't fill the bowl for some reason, it will try 15 times before it will message me, all of these messages/warnings will be sent through the Telegram app:<br>
 <img src="./img/Telegram-example.jpg" alt="Data visualization" width="300"><br>
