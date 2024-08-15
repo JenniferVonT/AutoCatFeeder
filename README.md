@@ -137,7 +137,7 @@ All code is run on the Raspberry Pi Pico W sending POST requests through the HTT
 All code is located in this repo and can be reached at the top.<br><br>
 **TAKE NOTE!**<br>
 The file that are not included in this repo is a ```.env``` file, this will contain all of your sensitive information, passwords, tokens etc. an example of that file is:
-```
+```env
 BOT_TOKEN=123456
 CHAT_ID=-123456
 SSID=WIFIROUTERUSERNAME
@@ -150,7 +150,7 @@ The first file to run when starting the device is:
 ```boot.py``` [TO CODE](./boot.py)
 
 This will connect to your local wifi network and only run once at the beginning.
-```
+```python
 from networkSettings import connect_wifi
 import os
 from load_env import load_env, env_vars
@@ -168,7 +168,7 @@ connect_wifi(SSID, PASSWORD)
 
 After the ```boot.py``` file is done running it will immediately run the ```main.py``` [TO CODE](./main.py), this will run indefinitely until the device is turned off.
 
-```
+```python
 from networkSettings import sendTelegramMessage, sendAdafruitData
 from servo import ServoClass
 from photoSensor import LightSensor
@@ -247,14 +247,14 @@ In your **PyMakr** tab you can open a terminal for your project in the connected
 
 You have to calibrate your weightcell, comment the entire **while** loop in the main.py file by inserting ``` before and after the loop. Insert this loop at the bottom outside of the **while** loop:
 
-```
+```python
 while True:
     print(weight.getCurrentWeight())
     sleep(1)
 ```
 
 In the ```weightCell.py``` [file](./weightCell.py), this is the method you need to change, replace the ```trunc(val)``` part with ```raw_value``` for the calibration process:
-```
+```python
     def getCurrentWeight(self):
         try:
             raw_value = self.hx.get_value()
@@ -277,18 +277,37 @@ In the ```weightCell.py``` [file](./weightCell.py), this is the method you need 
 
 Make note of the value you get with no pressure on the loadcell, wait a little bit and try to get an average of a couple of values when it feels like it is somewhat "stable".
 Replace your average in the tare_offset: <br>
-```tare_offset = -66500```<br><br>
+```python
+tare_offset = -66500
+```
+<br><br>
 
-Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do the same thing as before but with the known weight on the pressure plate and replace your average of the known weight in the ```known_weight_73g = -155300```, also replace the last number in this ```scale_factor = (known_weight_73g - tare_offset) / 73``` with your known weight. (so if you have 100g replace the 73 with 100)<br>
+Now you need to weigh a known weight (I have chosen my bowl that weighs 73g), do the same thing as before but with the known weight on the pressure plate and replace your average of the known weight in the 
+```python
+known_weight_73g = -155300
+```
+, also replace the last number in this 
+```python
+scale_factor = (known_weight_73g - tare_offset) / 73
+```
+with your known weight. (so if you have 100g replace the 73 with 100)<br>
 
-When you are done with these calibrations you will have to reset the rest of the code, make sure ```return trunc(val)``` is at the end of the ```getCurrentWeight()``` method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while loop and save/sync project with device.
+When you are done with these calibrations you will have to reset the rest of the code, make sure 
+```python
+return trunc(val)
+```
+is at the end of the 
+```python
+getCurrentWeight()
+```
+method and remove or comment the new while loop in the ```main.py``` file, de-comment the original while loop and save/sync project with device.
 
 ## Transmitting the Data / Connectivity
 I first wanted to try the LoRaWan setup for sending data wirelessly (I even bought the pack for it) but because I felt time was running out and I had to put a lot of time into debugging the weightcell and building the box, and since my device will always be located inside my home, close to a wifi point, it was easier and quicker to use the built in WiFi module in the Raspberry Pi Pico W.
 
 All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py) and data is transmitted every 10 minutes to the AdaFruit IO server<br><br>
 The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library (needs to be imported), this is the connection configurations in the code:
-```
+```python
 def connect_wifi(ssid, password):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
@@ -302,7 +321,7 @@ def connect_wifi(ssid, password):
 This method is called in the ```boot.py``` file when the device is being connected.
 
 It also sends POST requests using the HTTP protocol for transmitting data to both AdaFruit IO and the Telegram API:
-```
+```python
 # Send a message through the telegram app.
 def sendTelegramMessage(message):
     url = 'https://api.telegram.org/bot{}/sendMessage'.format(env_vars.get('BOT_TOKEN'))
