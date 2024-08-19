@@ -383,3 +383,7 @@ In the future it would also be better to remove the breadboard and solder all th
 <img src="./img/20240811_235415.jpg" alt="Build" width="600"><br><br>
 
 I was also lucky to have a lot of support from my partner that could help me when I had questions about hardware, he taught me how to solder for instance, since before this project I had never done that before.
+
+## Demo video
+[![](https://markdown-videos-api.jorgenkh.no/youtube/ZF-2Zq4f5u4)](https://youtu.be/ZF-2Zq4f5u4)
+<br>Click to open video.
