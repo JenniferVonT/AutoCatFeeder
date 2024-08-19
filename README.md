@@ -69,7 +69,7 @@ There is also different tools used:
 
 ### Configure the Raspberry Pi Pico WH
   - Hold down the **BOOTSEL** button while connecting the Pico to the computer using the usb cable.
-  - Download and insert the most recent firmware [HERE](https://micropython.org/download/RPI_PICO_W/) into the explorer file that automatically opens up.
+  - Download and insert the most recent firmware [HERE](https://micropython.org/download/RPI_PICO_W/) into the explorer drive that should automatically open up when inserting the usb.
 
 ## Putting everything together
 ### Circuit Diagram
