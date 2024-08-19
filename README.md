@@ -27,7 +27,7 @@ There is one (1) of each component except the cables.
 | Wheatstone load cell 1kg | The sensor that gauges weight, sends analog signals to the HX711 amplifier | **99** | [41016242](https://www.electrokit.com/lastcell-1kg) |
 | Photoresistor | Sensor that measures the light, the brighter the light source the lower the resistance is and can hence tell the difference between light and dark | **9** | [40850001](https://www.electrokit.com/fotomotstand-cds-4-7-kohm) |
 | 5mm LED lamp | Used to see if the inner containers need to be refilled | **5** | [40307020](https://www.electrokit.com/led-5mm-rod-diffus-1500mcd) |
-| 330ohm 0.25W resistor | Lowers the resistance to the LED | **1** | [40810233](https://www.electrokit.com/motstand-kolfilm-0.25w-330ohm-330r) |
+| 330ohm 0.25W resistor | Lowers the resistance to the LED, how to determine what kind of transistor see the ["Putting everything together"](./#putting-everything-together) section. | **1** | [40810233](https://www.electrokit.com/motstand-kolfilm-0.25w-330ohm-330r) |
 | Cables | Connect all the components | **55** | [41012684](https://www.electrokit.com/labbsladd-40-pin-30cm-hane/hane) |
 | **Container build:** | --------------------------------------------------------------- | ------- | ------- |
 | Food bowl | Will only be laying on the scale part, not attached to anything | **79,90** | [Arken zoo](https://www.arkenzoo.se/littlebigger-hamrad-metallic-skal-koppar) |
@@ -75,7 +75,36 @@ There is also different tools used:
 ### Circuit Diagram
 This shows how all the hardware electronics are connected, the HX711 is soldered with all the cables and mounted on the scale part. The rest is connected with male/male cables and can be removed from the breadboard easily, some cables are also joined together to create a longer cable to reach from the mounted component to the breadboard, in that case I have used male/female cables and used electrical tape at the joint to make sure it doesn't slip out. <br><br>
 <img src="./img/Setup-Schematic.png" alt="Circuit diagram" width="600" height="400"><br>
-The HX711 apparently has a known "error" with the grounding making the signals unstable and connecting the GND on both sides of the card can fix this.
+The HX711 apparently has a known "error" with the grounding making the signals unstable and connecting the GND on both sides of the card can fix this.<br>
+
+### Choosing the right resistor for the LED.
+To determine the right resistor we have to use Ohm's law, you can apply it in three different ways depending on what you are calculating, meaning you can calculate voltage, resistance or current needed as long as you have two of the three:<br>
+1. Voltage (V) = Resistance (R) x Current (I)
+2. Current (I) = Voltage (V) / Resistance (R)
+3. Resitance (R) = Voltage (V) / Current (I)
+
+- #### Step 1; Identify your parameters
+  For the LED we are using:
+  - Supply Voltage (Vsupply): The voltage that supplies the circuit from the Pico (for example 3.3V or 5V)
+  - LED Forward Voltage (Vf): The voltage drop across the LED when it's on. This differs depending on the LED, sometimes even different colors can give different Vf.
+  - Desired LED current (If): The current you want to flow through to the LED, typically around 10-20mA (0.01-0.02A)
+    
+- #### Step 2; Apply Ohms law
+  With the parameters we want to use and basing it on the components in this project:
+  - Vsupply = 3.3V (since we are turning the LED on by using `LED.on()` in the code, it is automatically set to high and since it is powered directly through the GPIO Pin it is the maximum which is 3.3V)
+  - Vf = 2V
+  - If = 25mA<br>
+
+  Now we can calculate the desired resistance by first calculating the voltage drop and then applying Ohms law.<br><br>
+  Calculating Voltage drop:<br>
+  **VR = Vsupply - Vf = 3.3V - 2v = 1.3V**<br><br>
+  Then apply Ohms law:<br>
+  **R = VR / If = 1.3V / 0.025A = 52Ω (Ohm)**
+
+<br>The most fitting resistor should be atleast 52Ω for this project, the lowest I had on the other hand was 330Ω, you can calculate the Current with the resistor you have like this:<br>
+**I = VR / R = 1.3V / 330Ω ≈ 3.94mA**<br>
+If the current is lower than the desired current for the LED it is often okay (Especially when just working with an LED, this can be different when working with other sensors that may need an accurate current though), but remember that you will most likely get a dimmer LED light, it will on the other hand reduce it's power consumption which can be good if you want to power several components since the Raspberry Pi Pico W only outputs a maximum of 50mA in total from all the GPIO pins)
+
 
 ### Build
 - Cut out all the parts for the box (missing from the images are the piece for opening/servo and when the bottom/top parts of the scale where cut)<br>
@@ -120,7 +149,7 @@ The HX711 apparently has a known "error" with the grounding making the signals u
 ## Platform
 All code is run on the Raspberry Pi Pico W sending POST requests through the HTTP protocol, but only to visualize and send notifications, all control and checks for the acutators are all made locally on the device.
 
-- **AdaFruit IO:** for data handling/visualization where the device will send the weight data using the request lib and the HTTP POST protocol via the built in WiFi module. Remember that all data saved on AdaFruit will expire within 30 days, there is a option for a paid version instead that (among other things) save the data for 60 days instead.
+- **AdaFruit IO:** for data handling/visualization where the device will send the weight data using the request lib and the HTTP POST protocol via the built in WiFi module. Remember that all data saved on AdaFruit will expire within 30 days, there is a option for a paid version instead that (among other things) save the data for 60 days instead. I chose AdaFruit IO for it's user friendliness, it works both with the MQTT protocol as a broker but also with the HTTP protocol (which I'm using) to send request through an API endpoint, it was easy to set up and use both as a cloud-based database and to quickly make a visualization of the data, you can even combine multiple data points on an easy to read dashboard that is fully customizable, it also has generous data storage for the free tier.
 - **Telegram API:** used to send notification and messages to my cellphone/telegram app when the food runs low or the dispenser have trouble dispensing food.
   
 ### Set up a bot on Telegram:
@@ -305,6 +334,8 @@ method and remove or comment the new while loop in the ```main.py``` file, de-co
 ## Transmitting the Data / Connectivity
 I first wanted to try the LoRaWan setup for sending data wirelessly (I even bought the pack for it) but because I felt time was running out and I had to put a lot of time into debugging the weightcell and building the box, and since my device will always be located inside my home, close to a wifi point, it was easier and quicker to use the built in WiFi module in the Raspberry Pi Pico W.
 
+My plan was also to always have the project powered by the USB cable and a power adapter (for example for mobile phones) connected to an electrical socket, meaning I did not have to think about saving power in the sense that it had to keep the project "alive" for as long as possible when in use, I did however have to think about the current output to the components since there is several both sensors and acutators all powered by the Raspberry Pi Pico board and had to keep the 50mA total maximum output in mind. Since I'm using our private home WiFi and when using the HTTP protocol to send requests, the endpoints use the encrypted HTTPS version, it is safe enough for this project. I'm also not sending any sensitive information through any channels and all the sensitive information is saved in the local .env file on the Raspberry Pi Pico which also makes it possible to not disclose the information all over the code aswell.
+
 All the code for transmitting data and connectivity is located in the [networkSettings.py](./networkSettings.py) and data is transmitted every 10 minutes to the AdaFruit IO server<br><br>
 The data is transmitted using the HTTP protocol (using POST) and the built in microPython request library (needs to be imported), this is the connection configurations in the code:
 ```python
@@ -356,8 +387,8 @@ def sendAdafruitData(data):
 ```
 
 ## Presenting the Data
-The data will be collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering your feed in the adaFruit account it will show all the data points and a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
-I have decide to showcase this using the dashboard in AdaFruit, here you can combine feeds so you can show more than one set of data at ones (For instance if you want to show both weight and maybe nr of refills).
+The data will be sent every 10 minutes and collected using the AdaFruit IO cloud server and stored for 30 days, it will show the food being consumed based on weight and time. When entering your feed in the adaFruit account it will show all the data points and a graph showing the data, you can also decide to show a specified time frame or remove any data that is an anomaly (if the weightcell gives of an unstable value for instance, sometimes it can for example drop below 0).<br>
+I have decide to showcase this using the dashboard in AdaFruit, here you can combine feeds so you can show more than one set of data at once (For instance if you want to show both weight and maybe nr of refills just create a second feed that recieve a post whenever the bowl is being filled and add that feed to the same dashboard as the weight feed).
 <img src="./img/data_visualization.PNG" alt="Data visualization" width="1000"><br>
 ### To create a dashboard in AdaFruit IO:
 - Click the Dashboard tab.
@@ -371,7 +402,8 @@ I have decide to showcase this using the dashboard in AdaFruit, here you can com
 - Now you can edit the layout and blocks by clicking the cogwheel and change size, move them around etc.
 
 It will show warnings to me when the food is running low in the container or the servo can't fill the bowl for some reason, it will try 15 times before it will message me, all of these messages/warnings will be sent through the Telegram app:<br>
-<img src="./img/Telegram-example.jpg" alt="Data visualization" width="300"><br>
+<img src="./img/Telegram-example.jpg" alt="Data visualization" width="300">
+<img src="./img/Telegram-example-2.jpg" alt="Data visualization" width="300"><br>
 
 ## Finalizing the design
 It was a fun project to take on, it went pretty smoothly. The only things that took much longer than expected was building the actual box, I used a dremel to cut all the pieces and had to use mouth/eye protection since it was very dusty and it took a long time, configuring and installing the weightcell also took a lot of back and forth and of course figuring out the set up design took a long time. <br><br>
